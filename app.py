@@ -22,9 +22,9 @@ def is_perfect(n):
 
 # Function to check if a number is an Armstrong number
 def is_armstrong(n):
-    num_str = str(n)
+    num_str = str(abs(int(n)))  # Convert float to int before checking
     num_len = len(num_str)
-    return n == sum(int(digit) ** num_len for digit in num_str)
+    return int(n) == sum(int(digit) ** num_len for digit in num_str)
 
 # Function to fetch a fun fact about the number
 def get_fun_fact(n):
@@ -40,23 +40,31 @@ def get_fun_fact(n):
 def classify_number():
     number = request.args.get('number')
 
-    if not number or not number.lstrip('-').isdigit():
-        return jsonify({"number": number, "error": True, "message": "Invalid input. Please provide an integer."}), 400
+    # Validate input
+    try:
+        num = float(number)  # Accept both int and float
+        if num.is_integer():
+            num = int(num)  # Convert float like 3.0 to integer 3
+    except (ValueError, TypeError):
+        return jsonify({"number": number, "error": True, "message": "Invalid input. Please provide a valid number."}), 400
 
-    number = int(number)
-
+    # Classify number properties
     properties = []
-    if is_armstrong(number):
-        properties.append("armstrong")
-    properties.append("odd" if number % 2 != 0 else "even")
+    if isinstance(num, int):  # Only integers can be Armstrong, Perfect, or Prime
+        if is_armstrong(num):
+            properties.append("armstrong")
+        if is_prime(num):
+            properties.append("prime")
+        if is_perfect(num):
+            properties.append("perfect")
+
+    properties.append("odd" if num % 2 != 0 else "even")
 
     response = {
-        "number": number,
-        "is_prime": is_prime(number),
-        "is_perfect": is_perfect(number),
+        "number": num,
         "properties": properties,
-        "digit_sum": sum(int(digit) for digit in str(abs(number))),
-        "fun_fact": get_fun_fact(number)
+        "digit_sum": sum(int(digit) for digit in str(abs(int(num)))),
+        "fun_fact": get_fun_fact(num)
     }
 
     return jsonify(response), 200
