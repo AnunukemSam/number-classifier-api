@@ -41,17 +41,15 @@ def classify_number():
     number = request.args.get('number')
 
     try:
-        number = float(number)  # Allow integers and floats
+        number = float(number)  # Convert to float first
+        if number.is_integer():
+            number = int(number)  # Convert to integer if it's a whole number
     except (TypeError, ValueError):
-        return jsonify({"number": number, "error": True, "message": "Invalid input. Please provide a number."}), 400
+        return jsonify({"number": number, "error": True, "message": "Invalid input. Please provide a valid number."}), 400
 
-    # Convert to integer if it has no decimal part (e.g., 5.0 -> 5)
-    if number.is_integer():
-        number = int(number)
-
-    # Classify properties
+    # ✅ Ensure negative and floating-point numbers are treated as valid
     properties = []
-    if isinstance(number, int):  # Only check Armstrong for whole numbers
+    if isinstance(number, int):  # Check Armstrong and even/odd only for integers
         if is_armstrong(number):
             properties.append("armstrong")
         properties.append("odd" if number % 2 != 0 else "even")
