@@ -22,7 +22,7 @@ def is_perfect(n):
 
 # Function to check if a number is an Armstrong number
 def is_armstrong(n):
-    num_str = str(n)
+    num_str = str(abs(n))  # Use abs() to handle negatives properly
     num_len = len(num_str)
     return n == sum(int(digit) ** num_len for digit in num_str)
 
@@ -65,12 +65,15 @@ def classify_number():
 
     properties.append("odd" if number % 2 != 0 else "even")
 
+    # Fix: Calculate digit sum correctly, even for negative numbers and floats
+    digit_sum = sum(int(digit) for digit in str(abs(number)) if digit.isdigit())
+
     response = {
         "number": number,
         "is_prime": is_prime(number) if isinstance(number, int) else None,
         "is_perfect": is_perfect(number) if isinstance(number, int) else None,
         "properties": properties,
-        "digit_sum": sum(int(digit) for digit in str(abs(int(number)))),
+        "digit_sum": digit_sum,
         "fun_fact": get_fun_fact(number)
     }
 
