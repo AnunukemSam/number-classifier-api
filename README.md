@@ -67,5 +67,65 @@ git commit -m "Initial setup"
 git push origin main
 ```
 
+### Install Flask
+```bash
+pip install flask
+```
+
+### Create the Flask App
+1. Inside your project directory, create a new file `app.py`:
+   ```bash
+   touch app.py
+   ```
+2. Add the following code to `app.py`:
+   ```python
+   from flask import Flask, request, jsonify
+
+   app = Flask(__name__)
+
+   @app.route('/api/classify-number', methods=['GET'])
+   def classify_number():
+       number = request.args.get('number')
+
+       if not number or not number.isdigit():
+           return jsonify({"number": number, "error": True}), 400
+
+       number = int(number)
+
+       response = {
+           "number": number,
+           "message": "Basic setup complete!"
+       }
+
+       return jsonify(response), 200
+
+   if __name__ == '__main__':
+       app.run(debug=True)
+   ```
+
+### Run the Flask App
+```bash
+python app.py
+```
+- Open a browser and visit:
+  ```
+  http://127.0.0.1:5000/api/classify-number?number=371
+  ```
+- You should see a response:
+  ```json
+  {
+      "number": 371,
+      "message": "Basic setup complete!"
+  }
+  ```
+
+### Update `.gitignore` and Commit Changes
+```bash
+echo "__pycache__/" >> .gitignore  # Ignore compiled Python files
+git add .
+git commit -m "Step 2: Basic Flask API setup"
+git push origin main
+```
+
 
 
