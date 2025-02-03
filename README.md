@@ -314,3 +314,57 @@ GET http://127.0.0.1:5000/api/classify-number?number=abc
 }
 ```
 
+# **Step 5: Deploying the API**  
+
+#### **Deployment Platform**  
+We deployed our Flask API using **Render**, a beginner-friendly and free-tier-friendly hosting service.  
+
+#### **Steps to Deploy**  
+1. **Pushed the Code to GitHub**  
+   - Ensured all changes were committed and pushed to GitHub.  
+   - Commands used:  
+     ```sh
+     git add .
+     git commit -m "Finalizing API before deployment"
+     git push origin main
+     ```  
+
+2. **Set Up Deployment on Render**  
+   - Signed in to [Render](https://render.com/) using GitHub.  
+   - Created a **New Web Service** and selected the GitHub repository.  
+   - Set up the environment:  
+     - **Build Command:**  
+       ```sh
+       pip install -r requirements.txt
+       ```  
+     - **Start Command:**  
+       ```sh
+       gunicorn app:app
+       ```  
+   - Clicked **Deploy** and waited for the process to complete.  
+
+3. **Public API Endpoint**  
+   - Once deployed, Render provided a public URL for the API.  
+   - Example endpoint (your actual URL will differ):  
+     ```
+     https://your-api-name.onrender.com/api/classify-number?number=371
+     ```  
+   - Tested the API using Postman and a web browser to confirm successful deployment.  
+
+#### **Testing the API**  
+To test, we sent a GET request:  
+```
+https://your-api-name.onrender.com/api/classify-number?number=371
+```  
+Expected JSON response:  
+```json
+{
+    "number": 371,
+    "is_prime": false,
+    "is_perfect": false,
+    "properties": ["armstrong", "odd"],
+    "digit_sum": 11,
+    "fun_fact": "371 is an Armstrong number because 3^3 + 7^3 + 1^3 = 371"
+}
+```  
+
