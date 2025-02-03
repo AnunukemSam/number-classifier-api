@@ -1,7 +1,9 @@
 from flask import Flask, request, jsonify
+from flask_cors import CORS  # Import CORS
 import requests
 
 app = Flask(__name__)
+CORS(app)  # Enable CORS for all routes
 
 # Function to check if a number is prime
 def is_prime(n):
@@ -30,7 +32,7 @@ def get_fun_fact(n):
         response = requests.get(f"http://numbersapi.com/{n}/math?json")
         if response.status_code == 200:
             return response.json().get("text", "No fact available")
-    except:
+    except requests.RequestException:
         return "Could not fetch a fun fact"
     return "No fact available"
 
@@ -39,7 +41,7 @@ def classify_number():
     number = request.args.get('number')
 
     if not number or not number.lstrip('-').isdigit():
-        return jsonify({"number": number, "error": True}), 400
+        return jsonify({"number": number, "error": True, "message": "Invalid input. Please provide an integer."}), 400
 
     number = int(number)
 
