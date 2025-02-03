@@ -1,4 +1,4 @@
-# Number Classification API - Step 1: Project Setup
+# Number Classification API 
 
 ## Overview
 The **Number Classification API** is designed to analyze a given number and return its mathematical properties, along with a fun fact. This API is built using Python and Flask and will be deployed to a publicly accessible endpoint.
@@ -67,6 +67,7 @@ git commit -m "Initial setup"
 git push origin main
 ```
 
+# **STEP 2: Create the API using Flask**
 ### Install Flask
 ```bash
 pip install flask
@@ -127,5 +128,95 @@ git commit -m "Step 2: Basic Flask API setup"
 git push origin main
 ```
 
+# **STEP 3: Add Number Classification Logic**  
+
+## **What Was Done in This Step**  
+- Implemented logic to classify numbers based on mathematical properties.  
+- Added functions to check:  
+  - **Prime numbers** (A number with only two factors: 1 and itself).  
+  - **Perfect numbers** (A number whose proper divisors sum up to the number itself).  
+  - **Armstrong numbers** (A number where the sum of its digits raised to the power of the total number of digits equals the number).  
+  - **Odd or Even** classification.  
+  - **Digit sum calculation**.  
+- Integrated the **Numbers API** to fetch a fun fact.  
+
+## **Code Implemented**  
+
+```python
+import requests
+from flask import Flask, request, jsonify
+
+app = Flask(__name__)
+
+def is_prime(n):
+    """Check if a number is prime."""
+    if n < 2:
+        return False
+    for i in range(2, int(n ** 0.5) + 1):
+        if n % i == 0:
+            return False
+    return True
+
+def is_perfect(n):
+    """Check if a number is perfect."""
+    return sum([i for i in range(1, n) if n % i == 0]) == n
+
+def is_armstrong(n):
+    """Check if a number is an Armstrong number."""
+    digits = [int(d) for d in str(n)]
+    return sum([d ** len(digits) for d in digits]) == n
+
+def get_fun_fact(n):
+    """Fetch a fun fact from the Numbers API."""
+    response = requests.get(f"http://numbersapi.com/{n}/math?json")
+    return response.json().get("text", "No fact available.")
+
+@app.route('/api/classify-number', methods=['GET'])
+def classify_number():
+    number = request.args.get('number')
+
+    if not number or not number.isdigit():
+        return jsonify({"number": number, "error": True}), 400
+
+    number = int(number)
+    properties = []
+    
+    if is_armstrong(number):
+        properties.append("armstrong")
+    properties.append("odd" if number % 2 != 0 else "even")
+
+    response = {
+        "number": number,
+        "is_prime": is_prime(number),
+        "is_perfect": is_perfect(number),
+        "properties": properties,
+        "digit_sum": sum(int(digit) for digit in str(number)),
+        "fun_fact": get_fun_fact(number)
+    }
+
+    return jsonify(response), 200
+```
+
+## **How to Test**  
+
+1. Start the Flask app by running:  
+   ```bash
+   python app.py
+   ```
+2. Open your browser or use Postman to visit the API endpoint:  
+   ```
+   http://127.0.0.1:5000/api/classify-number?number=371
+   ```
+3. Expected JSON response:  
+   ```json
+   {
+       "number": 371,
+       "is_prime": false,
+       "is_perfect": false,
+       "properties": ["armstrong", "odd"],
+       "digit_sum": 11,
+       "fun_fact": "371 is an Armstrong number because 3^3 + 7^3 + 1^3 = 371"
+   }
+   ```
 
 
