@@ -13,7 +13,7 @@ Before proceeding, ensure you have the following installed on your system:
 - **VS Code** ([Download VS Code](https://code.visualstudio.com/))
 - **Remote - WSL Extension for VS Code**
 
-## Project Setup
+# **STEP 1: Project Setup**
 ### 1️⃣ Install WSL and Connect to VS Code
 If WSL is not already installed, open **PowerShell as Administrator** and run:
 ```powershell
@@ -219,4 +219,98 @@ def classify_number():
    }
    ```
 
+# **STEP 4: Implementing CORS and Error Handling**  
+
+In this step, we added **CORS (Cross-Origin Resource Sharing)** to allow our API to be accessible from different domains. We also improved **error handling** to ensure invalid inputs are properly managed.
+
+---
+
+### **Changes Implemented**  
+
+✅ **Enabled CORS** using Flask-CORS to prevent browser restrictions when the API is accessed from another origin.  
+✅ **Implemented error handling** to return a `400 Bad Request` response when an invalid input (non-numeric) is received.  
+✅ **Handled negative numbers** correctly in the calculations.  
+✅ **Ensured all responses are returned in JSON format**, following the required API specification.  
+
+---
+
+### **Updated Code**  
+We made the following key updates to the `classify_number` function:
+
+- **CORS Enabled:**  
+  ```python
+  from flask_cors import CORS
+  ```
+  Then applied it to our app:
+  ```python
+  CORS(app)  # Enable CORS for all routes
+  ```
+
+- **Error Handling for Invalid Inputs:**  
+  ```python
+  if not number or not number.lstrip('-').isdigit():
+      return jsonify({"number": number, "error": True}), 400
+  ```
+
+- **Full Updated Endpoint:**  
+  ```python
+  @app.route('/api/classify-number', methods=['GET'])
+  def classify_number():
+      number = request.args.get('number')
+
+      if not number or not number.lstrip('-').isdigit():
+          return jsonify({"number": number, "error": True}), 400
+
+      number = int(number)
+      properties = []
+
+      if is_armstrong(number):
+          properties.append("armstrong")
+      properties.append("odd" if number % 2 != 0 else "even")
+
+      response = {
+          "number": number,
+          "is_prime": is_prime(number),
+          "is_perfect": is_perfect(number),
+          "properties": properties,
+          "digit_sum": sum(int(digit) for digit in str(abs(number))),
+          "fun_fact": get_fun_fact(number)
+      }
+
+      return jsonify(response), 200
+  ```
+
+---
+
+### **Testing the API**  
+
+#### ✅ **Test for a Valid Input**  
+**Request:**  
+```
+GET http://127.0.0.1:5000/api/classify-number?number=371
+```
+**Expected Response (200 OK):**  
+```json
+{
+    "number": 371,
+    "is_prime": false,
+    "is_perfect": false,
+    "properties": ["armstrong", "odd"],
+    "digit_sum": 11,
+    "fun_fact": "371 is an Armstrong number because 3^3 + 7^3 + 1^3 = 371"
+}
+```
+
+#### ❌ **Test for an Invalid Input**  
+**Request:**  
+```
+GET http://127.0.0.1:5000/api/classify-number?number=abc
+```
+**Expected Response (400 Bad Request):**  
+```json
+{
+    "number": "abc",
+    "error": true
+}
+```
 
