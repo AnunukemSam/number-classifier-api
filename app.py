@@ -3,7 +3,7 @@ from flask_cors import CORS
 import requests
 
 app = Flask(__name__)
-CORS(app)  # Enable CORS for all routes
+CORS(app)
 
 # Function to check if a number is prime
 def is_prime(n):
@@ -22,7 +22,7 @@ def is_perfect(n):
 
 # Function to check if a number is an Armstrong number
 def is_armstrong(n):
-    num_str = str(abs(n))
+    num_str = str(n)
     num_len = len(num_str)
     return n == sum(int(digit) ** num_len for digit in num_str)
 
@@ -40,35 +40,41 @@ def get_fun_fact(n):
 def classify_number():
     number = request.args.get('number')
 
-    # Validate input (allow negatives and floats)
+    # If the input is missing or completely invalid
     try:
-        num = float(number)
+        number = float(number)  # Convert to float to allow integers and decimals
     except (ValueError, TypeError):
-        return jsonify({"error": True, "message": "Invalid input. Please provide a valid number."}), 400
+        return jsonify({
+            "number": number,
+            "error": True,
+            "message": "Invalid input. Please provide a valid number."
+        }), 400
 
-    # Convert whole numbers like 3.0 to int
-    if num.is_integer():
-        num = int(num)
+    # Convert whole numbers to int for correct classification
+    if number.is_integer():
+        number = int(number)
 
     properties = []
-    if isinstance(num, int):  # Armstrong, Prime, and Perfect apply only to integers
-        if is_armstrong(num):
+    if isinstance(number, int):  # Only check prime, perfect, and armstrong for integers
+        if is_armstrong(number):
             properties.append("armstrong")
-        if is_prime(num):
+        if is_prime(number):
             properties.append("prime")
-        if is_perfect(num):
+        if is_perfect(number):
             properties.append("perfect")
 
-    properties.append("odd" if int(num) % 2 != 0 else "even")
+    properties.append("odd" if number % 2 != 0 else "even")
 
     response = {
-        "number": num,
+        "number": number,
+        "is_prime": is_prime(number) if isinstance(number, int) else None,
+        "is_perfect": is_perfect(number) if isinstance(number, int) else None,
         "properties": properties,
-        "digit_sum": sum(int(digit) for digit in str(abs(int(num)))),
-        "fun_fact": get_fun_fact(num)
+        "digit_sum": sum(int(digit) for digit in str(abs(int(number)))),
+        "fun_fact": get_fun_fact(number)
     }
 
-    return jsonify(response), 200  # ✅ Always return 200 for valid numbers!
+    return jsonify(response), 200
 
 if __name__ == '__main__':
     app.run(debug=True)
